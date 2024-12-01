@@ -1,0 +1,77 @@
+<ng-container
+  *ngIf="{
+    fetchingUsers: fetchingUsers$ | async,
+    users: users$ | async,
+    fetchingError: fetchingError$ | async
+  } as viewModel"
+>
+  <ng-container *ngIf="viewModel.fetchingUsers">
+    <p class="loading">Loading...</p>
+  </ng-container>
+  <ng-container
+    *ngIf="
+      !viewModel.fetchingUsers && !viewModel.fetchingError && viewModel.users
+    "
+  >
+    <h2 class="title">Users</h2>
+    <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let user of viewModel.users">
+            <ng-container *ngIf="editingUser?.id !== user.id; else editMode">
+              <td>{{ user.id }}</td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td class="action-buttons">
+                <button class="btn btn-edit" (click)="initiateEditing(user)">
+                  <fa-icon [icon]="faEdit"></fa-icon>
+                </button>
+              </td>
+            </ng-container>
+            <ng-template #editMode>
+              <td>{{ user.id }}</td>
+              <td>
+                <input class="table-input" formControlName="name" />
+              </td>
+              <td>
+                <input class="table-input" formControlName="username" />
+              </td>
+              <td>
+                <input class="table-input" formControlName="email" />
+              </td>
+              <td class="action-buttons">
+                <button class="btn btn-save" type="submit">
+                  <fa-icon [icon]="faSave"></fa-icon>
+                </button>
+                <button
+                  class="btn btn-cancel"
+                  (click)="closeEditing()"
+                  type="button"
+                >
+                  <fa-icon [icon]="faClose"></fa-icon>
+                </button>
+              </td>
+            </ng-template>
+          </tr>
+        </tbody>
+      </table>
+    </form>
+  </ng-container>
+  <ng-container *ngIf="viewModel.fetchingError">
+    <p class="error">
+      {{ viewModel.fetchingError || "An error occurred" }}
+      <button class="btn btn-retry" (click)="fetchUsers()">Retry</button>
+    </p></ng-container
+  >
+</ng-container>
